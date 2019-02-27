@@ -24,7 +24,184 @@ namespace Bronto.API.Tests
 
         }
 
-        [TestMethod] 
+        [TestMethod]
+        public void AddNewContactToList_ResultSuccess()
+        {
+            Contacts contactsApi = new Contacts(Login);
+
+            BrontoService.contactObject contact = new BrontoService.contactObject()
+            {
+                email = "xxxxxxxxx@xxxxxxxxxx.com",
+                //status = Bronto.API.ContactStatus.,
+                listIds = new string[] { "", },
+            };
+
+            BrontoResult result = contactsApi.AddAsync(contact).Result;
+            Assert.IsFalse(result.HasErrors);
+            if (result.HasErrors)
+            {
+                result.ErrorIndicies.ToList().ForEach(id =>
+                {
+                    Console.WriteLine("Error code {0}: {1}", result.Items[id].ErrorCode, result.Items[id].ErrorString);
+                });
+            }
+            else
+            {
+                Console.WriteLine("A contact with the Id '{0}' was created", result.Items.First().Id);
+            }
+
+        }
+
+        [TestMethod]
+        public async Task AddNewContactToListWithListName_ResultSuccess()
+        {
+            mailListFilter filter = new mailListFilter()
+            {
+                name = new stringValue[]
+                {
+                    new stringValue()
+                    {
+                         @operator = filterOperator.EqualTo,
+                          value = "xxxxxxxxxxxx",
+                           operatorSpecified = true
+                    }
+                }
+            };
+
+            MailLists mailLists = new MailLists(Login);
+            List<mailListObject> lists = await mailLists.ReadAsync(filter);
+            var theList = lists.FirstOrDefault();
+
+            if (theList != null)
+            {
+
+                Contacts contactsApi = new Contacts(Login);
+
+                BrontoService.contactObject contact = new BrontoService.contactObject()
+                {
+                    email = "xxxxxxxxxxx@xxxxxxxxxx.com",
+                    //status = Bronto.API.ContactStatus.,
+                    listIds = new string[] { theList.id, }, // will_test_list in UK a/c
+                };
+
+                BrontoResult result = contactsApi.AddAsync(contact).Result;
+                Assert.IsFalse(result.HasErrors);
+                if (result.HasErrors)
+                {
+                    result.ErrorIndicies.ToList().ForEach(id =>
+                    {
+                        Console.WriteLine("Error code {0}: {1}", result.Items[id].ErrorCode, result.Items[id].ErrorString);
+                    });
+                }
+                else
+                {
+                    Console.WriteLine("A contact with the Id '{0}' was created", result.Items.First().Id);
+                }
+            }
+
+        }
+
+        [TestMethod]
+        public async Task ReadContactWithEmailAddressFilter_ReturnsTrue()
+        {
+            Contacts contactsApi = new Contacts(Login);
+
+            contactFilter filter = new contactFilter()
+            { 
+                email = new stringValue[]
+                {
+                    new stringValue()
+                    {
+                         @operator = filterOperator.EqualTo,
+                          value = "xxxxxxxxxxx@xxxxxxxxxx.com",
+                           operatorSpecified = true
+                    }
+                }
+            };
+
+            var result = contactsApi.ReadAsync(filter).Result;
+
+            Assert.IsTrue(result.Count > 0);
+
+            var foundContact = result.FirstOrDefault();
+            if (foundContact != null)
+            {
+                Assert.AreEqual(foundContact.email, "xxxxxxxxxxx@xxxxxxxxxx.com");
+
+                var contactId = foundContact.id;
+
+            }
+
+            int debug = 0;
+
+        }
+
+        [TestMethod]
+        public async Task AddExisitingContactToListTest_ReturnSuccess()
+        {
+            // get list id
+            mailListFilter mfilter = new mailListFilter()
+            {
+                name = new stringValue[]
+                {
+                    new stringValue()
+                    {
+                         @operator = filterOperator.EqualTo,
+                          value = "xxxxxxxxxxxxxxxxx",
+                           operatorSpecified = true
+                    }
+                }
+            };
+
+            MailLists mailLists = new MailLists(Login);
+            List<mailListObject> lists = await mailLists.ReadAsync(mfilter);
+            var theList = lists.FirstOrDefault();
+
+            if (theList != null)
+            {
+                //check for contact
+                Contacts contactsApi = new Contacts(Login);
+
+                contactFilter cfilter = new contactFilter()
+                {
+                    email = new stringValue[]
+                    {
+                    new stringValue()
+                    {
+                         @operator = filterOperator.EqualTo,
+                          value = "xxxxxxxxxxx@xxxxxxxxxx.com",
+                           operatorSpecified = true
+                    }
+                    }
+                };
+
+                readContacts coptions = new readContacts() { includeLists = true, fields = new string[] { "listIds", "listIdsField" } };
+
+                var result = contactsApi.ReadAsync(cfilter, coptions).Result;
+
+                Assert.IsTrue(result.Count > 0);
+
+                var foundContact = result.FirstOrDefault();
+                if (foundContact != null)
+                {
+                    Assert.AreEqual(foundContact.email, "xxxxxxxxxxx@xxxxxxxxxx.com");
+
+                    if (!foundContact.listIds.Contains(theList.id))
+                    {
+
+                        var addToLIstResult = await mailLists.AddToListAsync(theList, foundContact);
+
+                        Assert.IsTrue(!addToLIstResult.HasErrors);
+                    }
+
+                    int dummy = 0;
+                }
+            }
+
+        }
+
+
+        /*[TestMethod] 
         public void AddContactWithListReference()
         {
             MailLists lists = new MailLists(Login);
@@ -332,7 +509,7 @@ namespace Bronto.API.Tests
                 }
             });
 
-        }
+        }*/
 
 
     }

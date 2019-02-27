@@ -3,9 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.329
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bronto.API", "BrontoSharpCore\Bronto.API.csproj", "{80867369-47D1-4576-B266-8D7120E953F7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bronto.API", "BrontoSharpCore\Bronto.API.csproj", "{80867369-47D1-4576-B266-8D7120E953F7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bronto.API.Tests", "Bronto.API.Tests\Bronto.API.Tests.csproj", "{BDC2C9E1-017B-4FCA-A656-A2A740A6C094}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bronto.API.Tests", "Bronto.API.Tests\Bronto.API.Tests.csproj", "{BDC2C9E1-017B-4FCA-A656-A2A740A6C094}"
+	ProjectSection(ProjectDependencies) = postProject
+		{80867369-47D1-4576-B266-8D7120E953F7} = {80867369-47D1-4576-B266-8D7120E953F7}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -15,7 +15,25 @@ namespace Bronto.API
             
         }
 
-        public BrontoResult Add(mailListObject mailList)
+        public async Task<BrontoResult> AddToListAsync(mailListObject mailList, contactObject contact)
+        {
+            return await AddToListAsync(mailList, new contactObject[] { contact });
+        }
+
+        public async Task<BrontoResult> AddToListAsync(mailListObject mailList, contactObject[] contacts)
+        {
+            BrontoSoapPortTypeClient client = BrontoSoapClient.Create(Timeout);
+
+            addToList _addToList = new addToList();
+            _addToList.list = mailList;
+            _addToList.contacts = contacts;
+
+            var response = await client.addToListAsync(session.SessionHeader, _addToList);
+            client = null;
+            return BrontoResult.Create(response.@return);
+        }
+
+        /*public BrontoResult Add(mailListObject mailList)
         {
             return Add(new mailListObject[] { mailList });
         }
@@ -132,7 +150,7 @@ namespace Bronto.API
                 }
                 return list;
             }
-        }
+        }*/
 
         public async Task<List<mailListObject>> ReadAsync()
         {
@@ -144,30 +162,30 @@ namespace Bronto.API
             {
                 throw new ArgumentNullException("filter", "The filter must be specified. Alternatively call the Read() function");
             }
-            using (BrontoSoapPortTypeClient client = BrontoSoapClient.Create(Timeout))
+            BrontoSoapPortTypeClient client = BrontoSoapClient.Create(Timeout);
+            readLists c = new readLists();
+            c.filter = filter;
+            c.pageNumber = 1;
+            List<mailListObject> list = new List<mailListObject>();
+            readListsResponse response = await client.readListsAsync(session.SessionHeader, c);
+            mailListObject[] result = response.@return;
+            if (result != null)
             {
-                readLists c = new readLists();
-                c.filter = filter;
-                c.pageNumber = 1;
-                List<mailListObject> list = new List<mailListObject>();
-                readListsResponse response = await client.readListsAsync(session.SessionHeader, c);
-                mailListObject[] result = response.@return;
+                list.AddRange(result);
+            }
+            while (result != null && result.Length > 0)
+            {
+                c.pageNumber += 1;
+                response = await client.readListsAsync(session.SessionHeader, c);
+                result = response.@return;
                 if (result != null)
                 {
                     list.AddRange(result);
                 }
-                while (result != null && result.Length > 0)
-                {
-                    c.pageNumber += 1;
-                    response = await client.readListsAsync(session.SessionHeader, c);
-                    result = response.@return;
-                    if (result != null)
-                    {
-                        list.AddRange(result);
-                    }
-                }
-                return list;
             }
+        client = null;
+            return list;
+            
         }
     }
 }

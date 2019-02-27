@@ -12,22 +12,49 @@ namespace Bronto.API.Tests
     [TestClass()]
     public class MailListsTests : BrontoBaseTestWithLogin
     {
-        [TestMethod()]
+        /*[TestMethod()]
         public void ReadTest()
         {
             MailLists mailLists = new MailLists(Login);
             List<mailListObject> lists = mailLists.Read();
-        }
+        }*/
 
         [TestMethod()]
         public async Task ReadAsyncTest()
         {
             MailLists mailLists = new MailLists(Login);
             List<mailListObject> lists = await mailLists.ReadAsync();
+
+            Assert.IsTrue(lists.Count > 0);
         }
 
 
         [TestMethod()]
+        public async Task ReadAsyncWithFilterTest()
+        {
+            mailListFilter filter = new mailListFilter()
+            {
+                name = new stringValue[]
+                {
+                    new stringValue()
+                    {
+                         @operator = filterOperator.EqualTo,
+                          value = "xxxxxxxx",
+                           operatorSpecified = true
+                    }
+                }
+            };
+
+            MailLists mailLists = new MailLists(Login);
+            List<mailListObject> lists = await mailLists.ReadAsync(filter);
+
+            
+            Assert.IsTrue(lists.Count > 0);
+        }
+
+        
+
+        /*[TestMethod()]
         public void AddListTest()
         {
             BrontoResult result = AddList();
@@ -146,10 +173,10 @@ namespace Bronto.API.Tests
             Assert.IsFalse(result.HasErrors);
             Assert.IsTrue(result.Items.Count >= lists.Count);
         }
+        */
 
-        
-        
 
-        
+
+
     }
 }
