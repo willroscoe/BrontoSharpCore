@@ -45,13 +45,19 @@ namespace Bronto.API
                 return BrontoResult.Create(response.@return);
             }*/
 
-            BrontoSoapPortTypeClient client = BrontoSoapClient.Create(Timeout);
-            
-            addContactsResponse response = await client.addContactsAsync(session.SessionHeader, contacts.ToArray());
-            client = null;
+            try
+            {
+                BrontoSoapPortTypeClient client = BrontoSoapClient.Create(Timeout);
 
-            return BrontoResult.Create(response.@return);
-            
+                addContactsResponse response = await client.addContactsAsync(session.SessionHeader, contacts.ToArray());
+                client = null;
+
+                return BrontoResult.Create(response.@return);
+            }
+            catch (Exception ex)
+            {
+                return new BrontoResult() { HasErrors = true, Items = new List<BrontoResultItem>() { new BrontoResultItem() { IsError = true, ErrorString = ex.Message } } };
+            }
         }
 
         
@@ -77,11 +83,17 @@ namespace Bronto.API
                 addOrUpdateContactsResponse response = await client.addOrUpdateContactsAsync(session.SessionHeader, contacts.ToArray());
                 return BrontoResult.Create(response.@return);
             }*/
-            BrontoSoapPortTypeClient client = BrontoSoapClient.Create(Timeout);
-            addOrUpdateContactsResponse response = await client.addOrUpdateContactsAsync(session.SessionHeader, contacts.ToArray());
-            client = null;
-            return BrontoResult.Create(response.@return);
-            
+            try
+            {
+                BrontoSoapPortTypeClient client = BrontoSoapClient.Create(Timeout);
+                addOrUpdateContactsResponse response = await client.addOrUpdateContactsAsync(session.SessionHeader, contacts.ToArray());
+                client = null;
+                return BrontoResult.Create(response.@return);
+            }
+            catch (Exception ex)
+            {
+                return new BrontoResult() { HasErrors = true, Items = new List<BrontoResultItem>() { new BrontoResultItem() { IsError = true, ErrorString = ex.Message } } };
+            }
         }
 
 
@@ -142,32 +154,39 @@ namespace Bronto.API
                 }
                 return list;
             }*/
-            BrontoSoapPortTypeClient client = BrontoSoapClient.Create(Timeout);
-            
-            readContacts c = options ?? new readContacts();
-            c.filter = filter;
-            c.pageNumber = 1;
-            List<contactObject> list = new List<contactObject>();
-            readContactsResponse response = await client.readContactsAsync(session.SessionHeader, c);
-            contactObject[] result = response.@return;
-            if (result != null)
+            try
             {
-                list.AddRange(result);
-            }
-            while (result != null && result.Length > 0)
-            {
-                c.pageNumber += 1;
-                response = await client.readContactsAsync(session.SessionHeader, c);
-                result = response.@return;
+                BrontoSoapPortTypeClient client = BrontoSoapClient.Create(Timeout);
+
+                readContacts c = options ?? new readContacts();
+                c.filter = filter;
+                c.pageNumber = 1;
+                List<contactObject> list = new List<contactObject>();
+                readContactsResponse response = await client.readContactsAsync(session.SessionHeader, c);
+                contactObject[] result = response.@return;
                 if (result != null)
                 {
                     list.AddRange(result);
                 }
-            }
-            client = null;
+                while (result != null && result.Length > 0)
+                {
+                    c.pageNumber += 1;
+                    response = await client.readContactsAsync(session.SessionHeader, c);
+                    result = response.@return;
+                    if (result != null)
+                    {
+                        list.AddRange(result);
+                    }
+                }
+                client = null;
 
-            return list;
-            
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return new List<contactObject>();
+            }
+
         }
 
         
@@ -184,10 +203,17 @@ namespace Bronto.API
                 deleteContactsResponse response = await client.deleteContactsAsync(session.SessionHeader, contacts.ToArray());
                 return BrontoResult.Create(response.@return);
             }*/
-           BrontoSoapPortTypeClient client = BrontoSoapClient.Create(Timeout);
-            deleteContactsResponse response = await client.deleteContactsAsync(session.SessionHeader, contacts.ToArray());
-            client = null;
-            return BrontoResult.Create(response.@return);
+            try
+            { 
+                BrontoSoapPortTypeClient client = BrontoSoapClient.Create(Timeout);
+                deleteContactsResponse response = await client.deleteContactsAsync(session.SessionHeader, contacts.ToArray());
+                client = null;
+                return BrontoResult.Create(response.@return);
+            }
+            catch (Exception ex)
+            {
+                return new BrontoResult() { HasErrors = true, Items = new List<BrontoResultItem>() { new BrontoResultItem() { IsError = true, ErrorString = ex.Message } } };
+            }
         }
 
         #endregion

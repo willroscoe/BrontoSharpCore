@@ -1,4 +1,5 @@
 ﻿using Bronto.API.BrontoService;
+using System;
 using System.Threading.Tasks;
 using sessionHeader = Bronto.API.BrontoService.sessionHeader;
 
@@ -22,13 +23,21 @@ namespace Bronto.API
         /// <returns>The Login session</returns>
         public static async Task<LoginSession> CreateAsync(string ApiToken)
         {
-            BrontoSoapPortTypeClient client = BrontoSoapClient.Create();
-            LoginSession login = new LoginSession();
-            loginResponse response = await client.loginAsync(ApiToken);
-            login.SessionId = response.@return;
-            client = null;
-            return login;
-            
+            try
+            {
+                BrontoSoapPortTypeClient client = BrontoSoapClient.Create();
+                LoginSession login = new LoginSession();
+                loginResponse response = await client.loginAsync(ApiToken);
+                login.SessionId = response.@return;
+                client = null;
+                return login;
+            }
+            catch (Exception ex)
+            {
+                
+            }
+            return new LoginSession();
+
         }
 
         /// <summary>
